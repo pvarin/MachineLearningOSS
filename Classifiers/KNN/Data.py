@@ -21,7 +21,6 @@ class ClusteredDataset(UserDict.IterableUserDict):
 			assert len(labels) == centers.shape[0] and centers.shape[1] == dim
 		else:
 			centers = np.random.rand(len(labels),dim)*4
-			print centers
 		if std_devs is not None:
 			assert len(labels) == std_devs.shape[0]
 		else:
