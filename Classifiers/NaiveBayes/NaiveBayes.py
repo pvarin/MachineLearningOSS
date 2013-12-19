@@ -41,7 +41,7 @@ if __name__ == '__main__':
 		x, y = data[0,:], data[1,:]
 		plt.plot(x,y,'.')
 	plt.title('Original Data')
-	# plt.savefig('Original Data')
+	plt.savefig('Original Data')
 
 	#determine the max/min of the dataset
 	maxX = -np.inf
@@ -88,6 +88,6 @@ if __name__ == '__main__':
 			x,y = np.array([]), np.array([])
 		plt.plot(x,y,'.')
 	plt.title('Naive-Bayes Classified Data')
-	# plt.savefig('Naive-Bayes Classified Data')
+	plt.savefig('Naive-Bayes Classified Data')
 
 	plt.show()
