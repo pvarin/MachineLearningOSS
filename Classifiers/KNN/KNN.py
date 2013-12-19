@@ -1,8 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.spatial.distance as scidist
-from Data import ClusteredDataset
 import operator
+
+import sys
+sys.path.append("..")
+from Data import ClusteredDataset
 
 
 def ClassifyKNN(newData, dataset, k=2):
@@ -42,7 +45,7 @@ if __name__ == '__main__':
 		x, y = data[0,:], data[1,:]
 		plt.plot(x,y,'.')
 	plt.title('OriginalData')
-	plt.savefig('OriginalData')
+	# plt.savefig('OriginalData')
 
 	#determine the max/min of the dataset
 	maxX = -np.inf
@@ -88,4 +91,4 @@ if __name__ == '__main__':
 			print x,y
 			plt.plot(x,y,'.')
 		plt.title('KNN-Classified Data K=%s' % k)
-		plt.savefig('KNN-Classified Data K=%s' % k)
+		# plt.savefig('KNN-Classified Data K=%s' % k)
