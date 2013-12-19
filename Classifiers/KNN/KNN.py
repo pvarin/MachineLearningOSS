@@ -2,61 +2,92 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.spatial.distance as scidist
 from Data import ClusteredDataset
+import operator
 
 
-def ClassifyKNN(newData, dataset, k=1):
+def ClassifyKNN(newData, dataset, k=2):
+	# extract the labels
 	labels = dataset.keys()
-	print newData[:,np.newaxis].shape
-	print dataset[labels[0]].shape
-	print scidist.cdist(np.transpose(newData[:,np.newaxis]), np.transpose(dataset[labels[0]]))
 	
+	# track the closest points efficiently
+	closest = []
+	for i in xrange(len(labels)):
+		distances = scidist.cdist(np.transpose(newData[:,np.newaxis]), np.transpose(dataset[labels[i]]))
+		for l in np.transpose(dataset[labels[i]]):
+			j = np.argmin(distances)
+			d = distances[0,j]
+			if len(closest)<k or d<closest[-1][0]:
+				closest.append((d,labels[i]))
+				closest.sort()
+				distances[0,j] = float(np.inf)
+			else:
+				break
+
+	# count the number of occurances for each label
+	numLabels = {}
+	for _,label in closest:
+		numLabels[label] = numLabels.get(label,0) + 1
 	
-
-# a class that represents a dataset for the KNN algorithm
-# an instance of this class is able to classify new data
-# class KNNData:
-# 	def __init__(self, k, dataset):
-# 		self.k = k
-# 		self.dataset = dataset
-
-# 	def classify(self, point):
-# 		# initialize the list and the furthest recorded distance
-# 		kNearest = []
-
-# 		for label,data in self.dataset.iteritems():
-# 			print label, data
-# 			distances = scidist.cdist(point[:,np.newaxis], data, 'euclidean')
-# 			print label, distances
-
-# 		return distances
-
-		# # iterate through each of the points in the dataset
-		# for d in self.data
-		# 	dist = distance(d, data) #TODO make this function call work
-		# 	if dist < furthest:
-		# 		# remove the element and append the new data
-		# 		if len(k_nearest) >= self.k
-		# 			kNearest.pop()
-		# 			kNearest.append((dist, d))
-		# 		# resort the list and update furthest
-		# 		kNearest.sort()
-		# 		furthest = kNearest[-1][0]
-
-		# #classify the data based on kNearest
-		# labels = dict()
-		# for d in kNearest:
-		# 	labels[d.label] = labels.get(d.label, 0)+1 #TODO make d.label work
-		
-		# return max(labels.iteritems(), key=operator.itemgetter(1))[0]
-
-
-
-
+	# find the maximum occurance
+	return max(numLabels.iteritems(), key=operator.itemgetter(1))[0]
+	
 if __name__ == '__main__':
 	# create the dataset
-	labels = ['red','green','blue']
+	labels = ['blue','green','red']
 	dataset = ClusteredDataset(labels)
 
-	ClassifyKNN(np.array([1,1]),dataset,1)
+	# plot the original data
+	for i, label in enumerate(labels):
+		data = dataset.data[label]
+		x, y = data[0,:], data[1,:]
+		plt.plot(x,y,'.')
+
+	#determine the max/min of the dataset
+	maxX = -np.inf
+	maxY = -np.inf
+	minX = np.inf
+	minY = np.inf
+
+	for data in dataset.values():
+		maxX_t, maxY_t = np.amax(data,axis=1)
+		minX_t, minY_t = np.amin(data,axis=1)
+		maxX = max(maxX, maxX_t)
+		maxY = max(maxY, maxY_t)
+		minX = min(minX, minX_t)
+		minY = min(minY, minY_t)
+
+	# create test data
+	x = np.linspace(minX,maxX)
+	y = np.linspace(minY,maxY)
+	X, Y = np.meshgrid(x,y)
+
+	X = np.ndarray.flatten(X)
+	Y = np.ndarray.flatten(Y)
+
+	testData = np.vstack((X,Y))
+
+	# classify the test data
+	classifiedData = {}
+	for label in labels:
+		classifiedData[label] = []
+
+	for i,data in enumerate(np.transpose(testData)):
+		if i%10000:
+			print i/float(testData.shape[1])
+		classifiedData[ClassifyKNN(data,dataset,1)].append(data)
+
+	# plot the classified data
+	plt.figure()
+	for key,data in classifiedData.iteritems():
+		data = np.array(data)
+		x, y = data[:,0], data[:,1]
+		print x,y
+		plt.plot(x,y,'.')
+	plt.savefig('test')
+	plt.show()
+
+	# print maxX, maxY, minX, minY
+
+	# ClassifyKNN(np.array([1,1]),dataset,3)
 	#TODO import data
 	#add data to KNNData object
