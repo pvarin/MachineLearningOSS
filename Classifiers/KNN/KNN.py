@@ -41,6 +41,8 @@ if __name__ == '__main__':
 		data = dataset.data[label]
 		x, y = data[0,:], data[1,:]
 		plt.plot(x,y,'.')
+	plt.title('OriginalData')
+	plt.savefig('OriginalData')
 
 	#determine the max/min of the dataset
 	maxX = -np.inf
@@ -66,28 +68,24 @@ if __name__ == '__main__':
 
 	testData = np.vstack((X,Y))
 
-	# classify the test data
-	classifiedData = {}
-	for label in labels:
-		classifiedData[label] = []
+	Ks = [1,3,5,10]
+	for k in Ks:
+		# classify the test data
+		classifiedData = {}
+		for label in labels:
+			classifiedData[label] = []
 
-	for i,data in enumerate(np.transpose(testData)):
-		if i%10000:
-			print i/float(testData.shape[1])
-		classifiedData[ClassifyKNN(data,dataset,1)].append(data)
+		for i,data in enumerate(np.transpose(testData)):
+			if i%100000:
+				print i/float(testData.shape[1])
+			classifiedData[ClassifyKNN(data,dataset,k)].append(data)
 
-	# plot the classified data
-	plt.figure()
-	for key,data in classifiedData.iteritems():
-		data = np.array(data)
-		x, y = data[:,0], data[:,1]
-		print x,y
-		plt.plot(x,y,'.')
-	plt.savefig('test')
-	plt.show()
-
-	# print maxX, maxY, minX, minY
-
-	# ClassifyKNN(np.array([1,1]),dataset,3)
-	#TODO import data
-	#add data to KNNData object
+		# plot the classified data
+		plt.figure()
+		for key,data in classifiedData.iteritems():
+			data = np.array(data)
+			x, y = data[:,0], data[:,1]
+			print x,y
+			plt.plot(x,y,'.')
+		plt.title('KNN-Classified Data K=%s' % k)
+		plt.savefig('KNN-Classified Data K=%s' % k)
