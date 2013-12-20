@@ -27,15 +27,12 @@ def FuzzyKNN(newData, dataset, k=2):
 				distances[0,j] = float(np.inf)
 			else:
 				break
-		print "after %s: %s" % (labels[i],closest)
-
 	# count the number of occurances for each label
 	numLabels = dict(zip(labels,[0]*len(labels)))
-	for _,label in closest:
-		print label
-		numLabels[label] = numLabels[label] + 1./k
 	
-	# find the maximum occurance
+	# compute and return the probabilities
+	for _,label in closest:
+		numLabels[label] += 1./k
 	return numLabels
 	
 
@@ -71,7 +68,7 @@ if __name__ =='__main__':
 	y = np.linspace(minY,maxY)
 	X, Y = np.meshgrid(x,y)
 
-	prob = dict(zip(labels,[np.zeros(X.shape)]*len(labels)))
+	prob = dict(zip(labels,[np.zeros(X.shape) for i in xrange(len(labels))]))
 	Ks = [10]#[1,3,5,10]
 	for k in Ks:
 		# classify the test data
@@ -80,39 +77,11 @@ if __name__ =='__main__':
 				temp = FuzzyKNN(np.array([X[i,j],Y[i,j]]),dataset,k)
 				for label in labels:
 					prob[label][i,j] = temp[label]
-					print '%s: %s' % (label, prob[label][i,j])
 
 	for label in labels:
 		plt.figure()
 		plt.pcolor(x,y,prob[label])
 		plt.colorbar()
+		plt.title('Probability of Label %s' % (label,))
+		# plt.savefig('Probability of Label %s' % (label,))
 	plt.show()
-
-
-
-
-
-
-
-
-
-
-
-		# classifiedData = {}
-		# for label in labels:
-		# 	classifiedData[label] = []
-
-		# for i,data in enumerate(np.transpose(testData)):
-		# 	if i%100000:
-		# 		print i/float(testData.shape[1])
-		# 	classifiedData[ClassifyKNN(data,dataset,k)].append(data)
-
-		# # plot the classified data
-		# plt.figure()
-		# for key,data in classifiedData.iteritems():
-		# 	data = np.array(data)
-		# 	x, y = data[:,0], data[:,1]
-		# 	print x,y
-		# 	plt.plot(x,y,'.')
-		# plt.title('KNN-Classified Data K=%s' % k)
-		# # plt.savefig('KNN-Classified Data K=%s' % k)
